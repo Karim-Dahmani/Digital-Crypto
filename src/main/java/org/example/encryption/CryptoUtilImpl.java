@@ -5,6 +5,8 @@ import org.apache.commons.codec.binary.Hex;
 import javax.crypto.*;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.*;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 import java.util.Formatter;
 
@@ -80,5 +82,30 @@ public class CryptoUtilImpl {
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(RSA_ALGORITHM);
         keyPairGenerator.initialize(2048); // Recommended key size
         return keyPairGenerator.generateKeyPair();
+    }
+
+    public PublicKey publicKeyFromBase64(String pkBase64) throws Exception {
+
+        KeyFactory keyFactory = KeyFactory.getInstance(RSA_ALGORITHM);
+        byte[] decode = Base64.getDecoder().decode(pkBase64);
+        return keyFactory.generatePublic(new X509EncodedKeySpec(decode));
+    }
+    public PrivateKey privateKeyFromBase64(String privateKeyBase64) throws Exception{
+        KeyFactory keyFactory = KeyFactory.getInstance(RSA_ALGORITHM);
+        byte[] decode = Base64.getDecoder().decode(privateKeyBase64);
+        return  keyFactory.generatePrivate(new PKCS8EncodedKeySpec(decode));
+    }
+    public String encryptRSA(byte[] data , PublicKey publicKey)throws Exception{
+        Cipher cipher = Cipher.getInstance(RSA_ALGORITHM);
+        cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+        byte[] encryptedBytes = cipher.doFinal(data);
+        return Base64.getEncoder().encodeToString(encryptedBytes);
+    }
+    public byte[] decryptRSA(String encryptedData , PrivateKey privateKey)throws Exception{
+        Cipher cipher = Cipher.getInstance(RSA_ALGORITHM);
+        cipher.init(Cipher.DECRYPT_MODE, privateKey);
+        byte[] bytes = decodeFromBase64(encryptedData);
+        byte[] decryptedBytes = cipher.doFinal(bytes);
+        return decryptedBytes;
     }
 }
