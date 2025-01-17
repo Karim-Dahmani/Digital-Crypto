@@ -1,4 +1,3 @@
-# Digital-Crypto
 # CryptoUtil - Cryptographic Utility Library
 
 ## Overview
